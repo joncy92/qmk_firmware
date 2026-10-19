@@ -60,6 +60,7 @@ static const uint8_t numpad_leds[] = {32, 33, 34, 35, 50, 51, 52, 53, 67, 68, 69
 
 #define CAPS_COLOUR 0, 255, 0  /* green */
 #define NUM_OFF_COLOUR 255, 0, 0 /* red */
+#define FN_KEY_COLOUR 0, 255, 0  /* green: keys that do something while Fn is held */
 
 static void paint(const uint8_t *leds, uint8_t count, uint8_t r, uint8_t g, uint8_t b, uint8_t led_min, uint8_t led_max) {
     for (uint8_t i = 0; i < count; i++) {
@@ -87,6 +88,23 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
     }
     if (!leds.num_lock) {
         paint(numpad_leds, sizeof(numpad_leds), NUM_OFF_COLOUR, led_min, led_max);
+    }
+
+    /* While Fn (or any higher layer) is held, turn every key that does
+     * something on that layer green. Other keys keep their normal lighting.
+     * Reads the live Vial layout, so it follows changes made in Vial. */
+    uint8_t layer = get_highest_layer(layer_state);
+    if (layer > _BL) {
+        for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
+            for (uint8_t col = 0; col < MATRIX_COLS; col++) {
+                uint8_t led = g_led_config.matrix_co[row][col];
+                if (led == NO_LED || led < led_min || led >= led_max) continue;
+                uint16_t kc = keymap_key_to_keycode(layer, (keypos_t){.row = row, .col = col});
+                if (kc != KC_TRNS && kc != KC_NO) {
+                    rgb_matrix_set_color(led, FN_KEY_COLOUR);
+                }
+            }
+        }
     }
     return false;
 }
