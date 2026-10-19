@@ -1,0 +1,40 @@
+diff --git a/quantum/via.c b/quantum/via.c
+index 1911c4a5..59b8e3ac 100644
+--- a/quantum/via.c
++++ b/quantum/via.c
+@@ -208,10 +208,21 @@ __attribute__((weak)) void raw_hid_receive_kb(uint8_t *data, uint8_t length) {
+ //
+ // raw_hid_send() is called at the end, with the same buffer, which was
+ // possibly modified with returned values.
++// Keyboard/keymap code can override this to handle its own raw HID messages
++// (e.g. SignalRGB). Return true if handled: VIA/Vial then does nothing more,
++// including NOT echoing the packet back to the host.
++__attribute__((weak)) bool via_command_kb(uint8_t *data, uint8_t length) {
++    return false;
++}
++
+ void raw_hid_receive(uint8_t *data, uint8_t length) {
+     uint8_t *command_id   = &(data[0]);
+     uint8_t *command_data = &(data[1]);
+ 
++    if (via_command_kb(data, length)) {
++        return;
++    }
++
+ #ifdef VIAL_ENABLE
+     /* When unlock is in progress, we can only react to a subset of commands */
+     if (vial_unlock_in_progress) {
+diff --git a/quantum/via.h b/quantum/via.h
+index 5aa06140..2b084849 100644
+--- a/quantum/via.h
++++ b/quantum/via.h
+@@ -129,6 +129,9 @@ enum via_qmk_audio_value {
+ // EEPROM is invalid and use/save defaults.
+ bool via_eeprom_is_valid(void);
+ 
++// Optional hook for keyboard/keymap raw HID handling, see via.c
++bool via_command_kb(uint8_t *data, uint8_t length);
++
+ // Sets VIA/keyboard level usage of EEPROM to valid/invalid
+ // Keyboard level code (eg. via_init_kb()) should not call this
+ void via_eeprom_set_valid(bool valid);
