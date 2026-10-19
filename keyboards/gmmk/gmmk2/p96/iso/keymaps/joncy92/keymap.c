@@ -57,6 +57,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 static const uint8_t caps_leds[]   = {54, 36, 55, 70};
 static const uint8_t numpad_leds[] = {32, 33, 34, 35, 50, 51, 52, 53, 67, 68, 69, 84, 85, 86, 87, 98, 99};
+static const uint8_t left_bar_leds[]  = {100, 101, 102, 103, 104, 105, 106, 107, 108, 109}; /* Caps Lock */
+static const uint8_t right_bar_leds[] = {110, 111, 112, 113, 114, 115, 116, 117, 118, 119}; /* Num Lock */
 
 #define CAPS_COLOUR 0, 255, 0  /* green */
 #define NUM_OFF_COLOUR 255, 0, 0 /* red */
@@ -87,9 +89,11 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
 
     if (leds.caps_lock) {
         paint(caps_leds, sizeof(caps_leds), CAPS_COLOUR, led_min, led_max);
+        paint(left_bar_leds, sizeof(left_bar_leds), CAPS_COLOUR, led_min, led_max);
     }
     if (!leds.num_lock) {
         paint(numpad_leds, sizeof(numpad_leds), NUM_OFF_COLOUR, led_min, led_max);
+        paint(right_bar_leds, sizeof(right_bar_leds), NUM_OFF_COLOUR, led_min, led_max);
     }
 
     /* While Fn (or any higher layer) is held, turn every key that does
