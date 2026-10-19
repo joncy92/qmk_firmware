@@ -28,7 +28,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   /* Function layer (hold Fn) */
 [_FL] = LAYOUT(
-  QK_BOOT,  KC_MYCM,  KC_WHOM,  KC_CALC,  KC_MSEL,  KC_MPLY,  KC_MPRV,  KC_MNXT,  KC_MSTP,  KC_MUTE,  KC_VOLU,  KC_VOLD,  _______,  _______,  _______,  _______,  KC_HOME,  KC_END,
+  QK_BOOT,  KC_MYCM,  KC_WHOM,  KC_CALC,  KC_MSEL,  KC_MPLY,  KC_MPRV,  KC_MNXT,  KC_MSTP,  KC_MUTE,  KC_VOLU,  KC_VOLD,  _______,  _______,  KC_PWR,   KC_SLEP,  KC_HOME,  KC_END,
   _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,
   _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,
   _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,  _______,  _______,
@@ -61,6 +61,8 @@ static const uint8_t numpad_leds[] = {32, 33, 34, 35, 50, 51, 52, 53, 67, 68, 69
 #define CAPS_COLOUR 0, 255, 0  /* green */
 #define NUM_OFF_COLOUR 255, 0, 0 /* red */
 #define FN_KEY_COLOUR 0, 255, 0  /* green: keys that do something while Fn is held */
+#define POWER_KEY_COLOUR 255, 0, 0 /* red: Power key on the Fn layer */
+#define SLEEP_KEY_COLOUR 0, 0, 255 /* blue: Sleep key on the Fn layer */
 
 static void paint(const uint8_t *leds, uint8_t count, uint8_t r, uint8_t g, uint8_t b, uint8_t led_min, uint8_t led_max) {
     for (uint8_t i = 0; i < count; i++) {
@@ -100,7 +102,11 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
                 uint8_t led = g_led_config.matrix_co[row][col];
                 if (led == NO_LED || led < led_min || led >= led_max) continue;
                 uint16_t kc = keymap_key_to_keycode(layer, (keypos_t){.row = row, .col = col});
-                if (kc != KC_TRNS && kc != KC_NO) {
+                if (kc == KC_PWR) {
+                    rgb_matrix_set_color(led, POWER_KEY_COLOUR);
+                } else if (kc == KC_SLEP) {
+                    rgb_matrix_set_color(led, SLEEP_KEY_COLOUR);
+                } else if (kc != KC_TRNS && kc != KC_NO) {
                     rgb_matrix_set_color(led, FN_KEY_COLOUR);
                 }
             }
